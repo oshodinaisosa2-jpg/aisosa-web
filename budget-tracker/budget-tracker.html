@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Budget Tracker</title>
+  <link rel="stylesheet" href="budget-tracker.css">
+</head>
+<body>
+  <main class="tracker">
+    <a class="back-link" href="index.html">← Back to my portfolio</a>
+
+    <p class="eyebrow">A PERSONAL FINANCE PROJECT</p>
+    <h1>Monthly Budget Tracker</h1>
+    <p class="intro">See your income, expenses, and what’s left for the month.</p>
+
+    <section class="summary">
+      <div class="summary-card">
+        <span>Monthly income</span>
+        <strong id="income-total">₦0</strong>
+      </div>
+      <div class="summary-card">
+        <span>Total expenses</span>
+        <strong id="expense-total">₦0</strong>
+      </div>
+      <div class="summary-card balance">
+        <span>Money left</span>
+        <strong id="balance-total">₦0</strong>
+      </div>
+    </section>
+
+    <section class="entry-section">
+      <h2>Add an item</h2>
+      <form id="budget-form">
+        <label for="description">What is it for?</label>
+        <input id="description" type="text" placeholder="e.g. Salary or Transport" required>
+
+        <label for="amount">Amount in naira</label>
+        <input id="amount" type="number" min="1" step="1" placeholder="e.g. 5000" required>
+
+        <label for="type">Income or expense?</label>
+        <select id="type">
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+        </select>
+
+        <button type="submit">Add to budget</button>
+      </form>
+    </section>
+
+    <section class="entries-section">
+      <h2>Your items</h2>
+      <ul id="entry-list">
+        <li class="empty-message">Your income and expenses will appear here.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="budget-tracker.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 32px 20px;
+  background: #f8f8f3;
+  color: #20251f;
+  font-family: Arial, sans-serif;
+}
+
+.tracker {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.back-link {
+  color: #41634d;
+  text-decoration: none;
+}
+
+.eyebrow {
+  margin-top: 48px;
+  color: #41634d;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.14em;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-family: Georgia, serif;
+  font-size: clamp(2.5rem, 7vw, 4rem);
+}
+
+.intro {
+  color: #71766d;
+  line-height: 1.6;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 32px 0;
+}
+
+.summary-card,
+.entry-section,
+.entries-section {
+  padding: 22px;
+  border: 1px solid #e4e6dc;
+  border-radius: 12px;
+  background: white;
+}
+
+.summary-card span {
+  display: block;
+  margin-bottom: 12px;
+  color: #71766d;
+  font-size: 0.9rem;
+}
+
+.summary-card strong {
+  font-size: 1.5rem;
+}
+
+.balance {
+  background: #edf0e8;
+}
+
+.entry-section,
+.entries-section {
+  margin-top: 18px;
+}
+
+h2 {
+  margin-top: 0;
+  font-family: Georgia, serif;
+}
+
+form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d9ddd2;
+  border-radius: 7px;
+  font: inherit;
+}
+
+button {
+  margin-top: 12px;
+  border: 0;
+  background: #41634d;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #304b39;
+}
+
+#entry-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#entry-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #e4e6dc;
+}
+
+.empty-message {
+  color: #71766d;
+}
+
+.income-amount {
+  color: #41634d;
+}
+
+.expense-amount {
+  color: #a34d42;
+}
+
+@media (max-width: 600px) {
+  .summary {
+    grid-template-columns: 1fr;
+  }
+}
