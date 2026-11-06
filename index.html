@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AISOSA — Portfolio</title>
+  <meta name="theme-color" content="#f7f7f2">
+  <meta name="description" content="The portfolio of Aisosa: a curious creator learning to build thoughtful, useful things for the web.">
+  <title>Aisosa — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="logo" href="#">F$<span>.</span></a>
-    <nav>
+    <a class="logo" href="#home" aria-label="Aisosa home">A<span>.</span></a>
+    <nav aria-label="Main navigation">
       <a href="#about">About</a>
       <a href="#projects">Projects</a>
       <a href="#contact">Contact</a>
@@ -17,79 +22,72 @@
   </header>
 
   <main>
-    <section class="hero">
-      <p class="eyebrow">HELLO, I’M</p>
-      <h1>AISOSA<span>.</span></h1>
-      <p class="intro">I’m a curious creator learning to build thoughtful, useful things for the web.</p>
-      <a class="button" href="#projects">Explore my work <span>↗</span></a>
-      <div class="hero-note">Currently learning <strong>web development, Data analysis & Financial analysis</strong></div>
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> HELLO, I’M</p>
+        <h1>AISOSA<span>.</span></h1>
+        <p class="intro">I’m a curious creator learning to build thoughtful, useful things for the web.</p>
+        <a class="button" href="#projects">Explore my work <span aria-hidden="true">↗</span></a>
+        <div class="hero-note">Currently learning <strong>web development, Data analysis &amp; Financial analysis</strong></div>
+      </div>
+
+      <div class="hero-art" aria-label="Decorative preview of a web design workspace">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="preview-window">
+          <div class="window-bar"><span></span><span></span><span></span><div class="address-bar">aisosa.dev</div></div>
+          <div class="preview-body">
+            <div class="preview-label">A SMALL SPACE ON THE WEB</div>
+            <div class="preview-title">Ideas made<br><em>useful.</em></div>
+            <div class="preview-line"></div>
+            <div class="preview-bottom"><span>Thoughtful work, always learning.</span><b>↗</b></div>
+          </div>
+        </div>
+        <div class="art-stamp"><span>DESIGN</span><span>&amp;</span><span>DEVELOP</span></div>
+        <div class="art-spark" aria-hidden="true">✳</div>
+      </div>
+      <a class="scroll-cue" href="#about"><span></span> SCROLL TO EXPLORE</a>
     </section>
 
-    <section class="section" id="about">
-      <section class="section" id="about">
-  <p class="eyebrow">MY STORY</p>
-  <h2>Curious by nature.<br>Always learning.</h2>
-
-  <p class="body-copy">
-    My journey is shaped by curiosity and a love of learning. I’m building my skills
-    in web development while exploring other fields that interest me, including
-    data analysis and financial analysis.
-  </p>
-
-  <p class="body-copy">
-    I enjoy discovering how things work, finding meaning in information, and
-    turning new ideas into practical skills. This portfolio is a place to share
-    what I’m learning and the projects I create along the way.
-  </p>
-
-  <div class="skills">
-    <span>Web development</span>
-    <span>Data analysis</span>
-    <span>Financial analysis</span>
-    <span>Always learning</span>
-  </div>
-</section>
-
-    <section class="section" id="projects">
-      <p class="eyebrow">SELECTED WORK</p>
-      <h2>Things I’ve made</h2>
-      <div class="project-card">
-        <div class="project-number">01</div>
+    <section class="section about" id="about">
+      <div class="section-heading"><p class="eyebrow">MY STORY</p><span class="section-index">01 / ABOUT</span></div>
+      <div class="about-grid">
+        <h2>Curious by nature.<br><em>Always learning.</em></h2>
         <div>
-          <h3>My first website</h3>
-          <p>A little corner of the internet I built while learning HTML and CSS.</p>
+          <p class="body-copy">My journey is shaped by curiosity and a love of learning. I’m building my skills in web development while exploring other fields that interest me, including data analysis and financial analysis.</p>
+          <p class="body-copy">I enjoy discovering how things work, finding meaning in information, and turning new ideas into practical skills. This portfolio is a place to share what I’m learning and the projects I create along the way.</p>
+          <div class="skills">
+            <span>Web development</span><span>Data analysis</span><span>Financial analysis</span><span>Always learning</span>
+          </div>
         </div>
-        <span class="project-arrow">↗</span>
       </div>
-      <p class=<div class="project-card">02
-    <h3>Budget Tracker</h3>
+    </section>
 
-    <p>A web app I built to track income and expenses.</p>
-
-    <a href="budget-tracker/budget-tracker.html">
-        View Live Project
-    </a>
-</div>
-</div>
-<div class="project-card">
-  <div class="project-number">03</div>
-  <div>
-    <h3>cryptovault</h3>
-    <p>A MODERN WALLET INTERFACE WITH USER REGISTRATION AND AUTHENTICATION</p>
-    <a href="cryptovault/index.html">
-      view live project
-    </a>
-  </div>
-.</p>
+    <section class="section projects" id="projects">
+      <div class="section-heading"><p class="eyebrow">SELECTED WORK</p><span class="section-index">02 / PROJECTS</span></div>
+      <div class="projects-heading"><h2>Things I’ve made</h2><p>A few steps along the way.</p></div>
+      <div class="project-grid">
+        <article class="project-card project-featured">
+          <div class="card-art first-art"><span class="art-number">01</span><div class="mini-browser"><div class="mini-top"><i></i><i></i><i></i></div><div class="mini-content"><b>hello, world<span>.</span></b><div class="mini-underline"></div><small>my first page on the internet</small></div></div><span class="art-caption">A FIRST STEP</span></div>
+          <div class="card-info"><div><p class="card-kicker">HTML &amp; CSS</p><h3>My first website</h3><p>A little corner of the internet I built while learning HTML and CSS.</p></div><span class="card-arrow" aria-hidden="true">↗</span></div>
+        </article>
+        <article class="project-card">
+          <div class="card-art budget-art"><span class="art-number">02</span><div class="budget-ui"><div class="ui-label">TOTAL BALANCE</div><div class="ui-total">$2,480<span>.00</span></div><div class="ui-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="ui-legend"><span>INCOME</span><span>EXPENSES</span></div></div><span class="art-caption">MONEY, MADE CLEAR</span></div>
+          <div class="card-info"><div><p class="card-kicker">PERSONAL FINANCE</p><h3>Budget Tracker</h3><p>A web app I built to track income and expenses.</p><a class="project-link" href="budget-tracker/budget-tracker.html">View live project <span aria-hidden="true">↗</span></a></div><span class="card-arrow" aria-hidden="true">↗</span></div>
+        </article>
+        <article class="project-card">
+          <div class="card-art crypto-art"><span class="art-number">03</span><div class="crypto-ui"><div class="coin-mark">₿</div><div><small>CRYPTO WALLET</small><b>Secure by design.</b></div><span class="shield">✓</span></div><span class="art-caption">A MODERN WALLET EXPERIENCE</span></div>
+          <div class="card-info"><div><p class="card-kicker">WEB APPLICATION</p><h3>CryptoVault</h3><p>A modern wallet interface with user registration and authentication.</p><a class="project-link" href="cryptovault/index.html">View live project <span aria-hidden="true">↗</span></a></div><span class="card-arrow" aria-hidden="true">↗</span></div>
+        </article>
+      </div>
     </section>
 
     <section class="contact" id="contact">
-      <p class="eyebrow">SAY HELLO</p>
-      <h2>Have a project<br>in mind?</h2>
-      <a class="email" href="mailto:oshodinaisosa2@gmail.com">oshodinaisosa2@gmailcom ↗</a>
+      <div><p class="eyebrow">SAY HELLO</p><h2>Have a project<br>in mind?</h2></div>
+      <a class="email" href="mailto:oshodinaisosa2@gmail.com">oshodinaisosa2@gmail.com <span aria-hidden="true">↗</span></a>
     </section>
   </main>
 
-  <footer>© 2026 AISOSA <span>Made with curiosity.</span></footer>
+  <footer><span>© 2026 AISOSA</span><span>Made with curiosity. <b>✳</b></span></footer>
 </body>
 </html>
