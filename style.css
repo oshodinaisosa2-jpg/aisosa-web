@@ -23,3 +23,12 @@ main{max-width:1128px;margin:auto;padding:0 56px}
 @media(max-width:760px){.topbar{padding:20px 28px}main{padding:0 28px}.hero{min-height:auto;grid-template-columns:1fr;gap:12px;padding:75px 0 85px}.hero h1{font-size:clamp(4.7rem,16vw,7rem)}.hero-art{height:320px;margin-top:8px}.orbit-one{width:80%;height:230px}.orbit-two{width:92%;height:270px}.preview-window{width:min(78%,370px)}.preview-body{min-height:205px}.preview-title{font-size:2.05rem}.art-stamp{right:8%;bottom:26px;width:70px;height:70px}.art-spark{right:12%;top:20px}.scroll-cue{bottom:24px}.section{padding:65px 0}.about-grid{grid-template-columns:1fr;gap:20px;margin-top:24px}.project-grid{gap:15px}.card-art{height:175px}.project-featured .card-art{height:215px}.card-info{padding:17px;min-height:160px}.contact{padding:34px 28px}.email{font-size:.72rem}footer{padding:20px 28px}}
 @media(max-width:520px){.topbar{padding:18px 21px}nav{gap:19px}nav a{font-size:.76rem}main{padding:0 21px}.hero{padding-top:62px}.intro{font-size:.96rem}.hero-note{margin-top:35px}.hero-art{height:285px}.preview-window{width:82%}.preview-body{min-height:188px;padding:29px 27px 19px}.preview-title{font-size:1.85rem}.projects-heading{display:block}.projects-heading>p{margin-top:10px}.project-grid{grid-template-columns:1fr;gap:14px}.project-featured{grid-column:auto}.card-art,.project-featured .card-art{height:195px}.card-info{min-height:unset}.mini-browser{width:70%}.budget-ui{width:72%}.contact{display:block;margin-bottom:38px;padding:30px 22px}.email{display:inline-block;margin-top:22px}footer{padding:18px 21px;font-size:.59rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+
+/* Project case studies and a clearer contact action */
+nav .nav-contact{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;margin-top:-9px;border:1px solid var(--green);border-radius:3px;color:var(--green);font-weight:600}
+nav .nav-contact:hover{background:var(--green);color:#fff}
+.project-details{margin-top:16px;padding-top:13px;border-top:1px solid var(--line)}
+.project-details .details-label{margin:0 0 8px;color:var(--green);font-size:.56rem;font-weight:700;letter-spacing:.13em}
+.project-details ul{margin:0;padding-left:16px;color:var(--muted);font-size:.7rem;line-height:1.8}
+.project-details li+li{margin-top:2px}
+@media(max-width:520px){nav .nav-contact{padding:7px 8px;margin-top:-7px;font-size:.69rem}nav{gap:12px}}
