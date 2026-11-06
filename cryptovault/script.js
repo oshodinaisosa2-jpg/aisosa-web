@@ -1,8 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Supabase provides account sign-in. Wallet actions below are demo-only.
-const SUPABASE_URL = "https://qzboyriqqfpgsuewvqmf.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_UKY0WOadC6t-0-5Edz_zRZg__sfzyJ6v";
+const SUPABASE_URL = "sb_publishable_UKY0WOadC6tO-5Edz_zRZg__sfzyJ6v";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_UKY0WOadC6tO-5Edz_zRZg__sfzyJ6v";
 const configured = SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.length > 0;
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
