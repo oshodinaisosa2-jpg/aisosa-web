@@ -3,59 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monthly Budget Tracker</title>
+  <meta name="theme-color" content="#f7f7f2">
+  <title>Monthly Budget Tracker — Aisosa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="Budget-tracker.css">
 </head>
 <body>
   <main class="tracker">
-    <a class="back-link" href="https://oshodinaisosa2-jpg.github.io/aisosa-web/">← Back to my portfolio</a>
-
-    <p class="eyebrow">A PERSONAL FINANCE PROJECT</p>
-    <h1>Monthly Budget Tracker</h1>
-    <p class="intro">See your income, expenses, and what’s left for the month.</p>
-
-    <section class="summary">
-      <div class="summary-card">
-        <span>Monthly income</span>
-        <strong id="income-total">₦0</strong>
-      </div>
-      <div class="summary-card">
-        <span>Total expenses</span>
-        <strong id="expense-total">₦0</strong>
-      </div>
-      <div class="summary-card balance">
-        <span>Money left</span>
-        <strong id="balance-total">₦0</strong>
-      </div>
+    <a class="back-link" href="https://oshodinaisosa2-jpg.github.io/aisosa-web/"><span aria-hidden="true">←</span> Back to my portfolio</a>
+    <header class="page-heading">
+      <div class="heading-copy"><p class="eyebrow"><span class="status-dot"></span> A PERSONAL FINANCE PROJECT</p><h1>Monthly Budget<br><em>Tracker</em></h1><p class="intro">See your income, expenses, and what’s left for the month.</p></div>
+      <div class="heading-art" aria-hidden="true"><div class="art-ring ring-one"></div><div class="art-ring ring-two"></div><div class="wallet-art"><span class="wallet-mark">₦</span><span class="wallet-lines"><i></i><i></i><i></i></span><span class="wallet-dot"></span></div><span class="sparkle">✳</span></div>
+    </header>
+    <section class="month-toolbar" aria-label="Choose a month"><div class="month-copy"><p class="eyebrow">YOUR MONTH</p><strong id="month-label" aria-live="polite"></strong></div><div class="month-controls"><button class="month-button" id="previous-month" type="button" aria-label="Previous month">←</button><button class="month-button" id="next-month" type="button" aria-label="Next month">→</button></div></section>
+    <section class="summary" aria-label="Budget summary">
+      <article class="summary-card income-card"><div class="card-topline"><span class="summary-icon" aria-hidden="true">↗</span><span class="summary-label">Monthly income</span></div><strong id="income-total">₦0</strong><span class="card-caption">Money coming in</span></article>
+      <article class="summary-card expense-card"><div class="card-topline"><span class="summary-icon" aria-hidden="true">↘</span><span class="summary-label">Total expenses</span></div><strong id="expense-total">₦0</strong><span class="card-caption">Money going out</span></article>
+      <article class="summary-card balance"><div class="card-topline"><span class="summary-icon" aria-hidden="true">₦</span><span class="summary-label">Money left</span></div><strong id="balance-total">₦0</strong><span class="card-caption">Income after expenses</span></article>
     </section>
-
-    <section class="entry-section">
-      <h2>Add an item</h2>
-      <form id="budget-form">
-        <label for="description">What is it for?</label>
-        <input id="description" type="text" placeholder="e.g. Salary or Transport" required>
-
-        <label for="amount">Amount in naira</label>
-        <input id="amount" type="number" min="1" step="1" placeholder="e.g. 5000" required>
-
-        <label for="type">Income or expense?</label>
-        <select id="type">
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-
-        <button type="submit">Add to budget</button>
-      </form>
-    </section>
-
-    <section class="entries-section">
-      <h2>Your items</h2>
-      <ul id="entry-list">
-        <li class="empty-message">Your income and expenses will appear here.</li>
-      </ul>
-    </section>
+    <div class="workspace">
+      <section class="entry-section panel"><div class="panel-heading"><span class="panel-number">01</span><div><p class="eyebrow">NEW TRANSACTION</p><h2>Add an item</h2></div></div><p class="panel-intro">Keep your monthly picture up to date by adding income or an expense.</p>
+        <form id="budget-form"><label for="description">What is it for?</label><input id="description" type="text" placeholder="e.g. Salary or Transport" autocomplete="off" required><label for="amount">Amount in naira</label><div class="amount-field"><span aria-hidden="true">₦</span><input id="amount" type="number" min="1" step="1" placeholder="e.g. 5000" inputmode="numeric" required></div><label for="type">Income or expense?</label><select id="type"><option value="income">Income</option><option value="expense">Expense</option></select><button class="submit-button" type="submit">Add to budget <span aria-hidden="true">↗</span></button></form>
+        <p class="form-note"><span aria-hidden="true">✳</span> A little clarity goes a long way.</p>
+      </section>
+      <section class="entries-section panel"><div class="panel-heading"><span class="panel-number">02</span><div><p class="eyebrow">YOUR ACTIVITY</p><h2>Your items</h2></div></div><p class="panel-intro">Your income and expenses, all in one place.</p><p class="storage-note"><span aria-hidden="true">✓</span> Saved on this device</p><ul id="entry-list"><li class="empty-message">Your income and expenses will appear here.</li></ul></section>
+    </div>
+    <footer><span>© 2026 AISOSA</span><span>Spend thoughtfully. <b>✳</b></span></footer>
   </main>
-
   <script src="budget-tracker.js"></script>
 </body>
 </html>
