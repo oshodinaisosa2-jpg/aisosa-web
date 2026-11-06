@@ -1,15 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Supabase provides account sign-in. Wallet actions below are demo-only.
-const SUPABASE_URL = "sb_publishable_UKY0WOadC6tO-5Edz_zRZg__sfzyJ6v";
+// This publishable key is intended for browser code. Never put a secret key here.
+const SUPABASE_URL = "https://qzboyriqqfpgsuewvqmf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_UKY0WOadC6tO-5Edz_zRZg__sfzyJ6v";
-const configured = SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.length > 0;
+const configured = SUPABASE_URL.startsWith("https://") && SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_");
 const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
 
+// Keep these sample prices aligned with the database function in cryptovault-demo-schema.sql.
 const assets = [
-  { symbol: "BTC", name: "Bitcoin", icon: "₿", price: 67500, className: "bitcoin", initial: 0.12 },
-  { symbol: "ETH", name: "Ethereum", icon: "Ξ", price: 2400, className: "ethereum", initial: 1.5 },
-  { symbol: "SOL", name: "Solana", icon: "◎", price: 150, className: "solana", initial: 5 }
+  { symbol: "BTC", name: "Bitcoin", icon: "₿", price: 67500, className: "bitcoin" },
+  { symbol: "ETH", name: "Ethereum", icon: "Ξ", price: 2400, className: "ethereum" },
+  { symbol: "SOL", name: "Solana", icon: "◎", price: 150, className: "solana" }
 ];
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
 const quantityFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 8 });
@@ -52,54 +53,11 @@ const walletMessage = document.getElementById("wallet-message");
 let mode = "login";
 let busy = false;
 let activeUserId = null;
+let loadedUserId = null;
 let walletState = null;
 let actionMode = "buy";
-
-function defaultWallet() {
-  return {
-    cash: 2500,
-    holdings: Object.fromEntries(assets.map((asset) => [asset.symbol, asset.initial])),
-    transactions: []
-  };
-}
-
-function walletStorageKey(userId) {
-  return `cryptovault-demo-wallet-v1-${userId}`;
-}
-
-function loadWallet(userId) {
-  const fallback = defaultWallet();
-  try {
-    const saved = JSON.parse(localStorage.getItem(walletStorageKey(userId)) || "null");
-    if (!saved || typeof saved !== "object") return fallback;
-    const holdings = Object.fromEntries(assets.map((asset) => {
-      const value = Number(saved.holdings?.[asset.symbol]);
-      return [asset.symbol, Number.isFinite(value) && value >= 0 ? value : asset.initial];
-    }));
-    const transactions = Array.isArray(saved.transactions) ? saved.transactions.filter((tx) =>
-      tx && typeof tx.id === "string" && typeof tx.type === "string" &&
-      assets.some((asset) => asset.symbol === tx.symbol) &&
-      Number.isFinite(Number(tx.quantity)) && Number.isFinite(Number(tx.usdValue))
-    ) : [];
-    const cash = Number(saved.cash);
-    return { cash: Number.isFinite(cash) && cash >= 0 ? cash : fallback.cash, holdings, transactions };
-  } catch {
-    return fallback;
-  }
-}
-
-function saveWallet() {
-  try {
-    localStorage.setItem(walletStorageKey(activeUserId), JSON.stringify(walletState));
-    walletMessage.textContent = "Demo activity saved in this browser.";
-    walletMessage.classList.remove("error");
-    return true;
-  } catch {
-    walletMessage.textContent = "Could not save this demo activity in the browser.";
-    walletMessage.classList.add("error");
-    return false;
-  }
-}
+let walletLoadRequest = 0;
+let walletRefreshTimer = null;
 
 function setMode(nextMode) {
   mode = nextMode;
@@ -125,28 +83,76 @@ function setBusy(value) {
   submitButton.textContent = value ? "Please wait..." : mode === "login" ? "Log in" : "Create account";
 }
 
-function showDashboard(session) {
+function showDashboard(session, deferWalletLoad = false) {
   if (!session?.user) return showLogin();
   const email = session.user.email || "Account";
-  userEmail.textContent = email;
-  sidebarEmail.textContent = email;
+  const needsWalletLoad = activeUserId !== session.user.id || loadedUserId !== session.user.id;
   if (activeUserId !== session.user.id) {
     activeUserId = session.user.id;
-    walletState = loadWallet(activeUserId);
+    walletState = null;
+    loadedUserId = null;
   }
+  userEmail.textContent = email;
+  sidebarEmail.textContent = email;
   authView.hidden = true;
   walletView.hidden = false;
-  renderWallet();
+  if (!walletRefreshTimer) {
+    walletRefreshTimer = setInterval(() => {
+      if (activeUserId && loadedUserId === activeUserId) void refreshWallet(activeUserId);
+    }, 20000);
+  }
+  if (needsWalletLoad) {
+    if (deferWalletLoad) setTimeout(() => refreshWallet(session.user.id), 0);
+    else void refreshWallet(session.user.id);
+  }
 }
 
 function showLogin() {
+  walletLoadRequest += 1;
+  if (walletRefreshTimer) clearInterval(walletRefreshTimer);
+  walletRefreshTimer = null;
+  activeUserId = null;
+  loadedUserId = null;
+  walletState = null;
   walletView.hidden = true;
   authView.hidden = false;
   setBusy(false);
 }
 
 function formatQuantity(amount, symbol) {
-  return `${quantityFormat.format(amount)} ${symbol}`;
+  return `${quantityFormat.format(Number(amount))} ${symbol}`;
+}
+
+async function refreshWallet(userId) {
+  if (!supabase || !userId || userId !== activeUserId) return;
+  const requestNumber = ++walletLoadRequest;
+  walletMessage.textContent = "Loading shared demo wallet…";
+  walletMessage.classList.remove("error");
+  try {
+    const { data: wallet, error: walletError } = await supabase.rpc("get_or_create_demo_wallet");
+    if (walletError) throw walletError;
+    const { data: transactions, error: activityError } = await supabase
+      .from("demo_transactions")
+      .select("id,reference,user_id,recipient_user_id,action,asset_symbol,quantity,usd_value,sender_email,recipient_email,created_at")
+      .or(`user_id.eq.${userId},recipient_user_id.eq.${userId}`)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (activityError) throw activityError;
+    if (requestNumber !== walletLoadRequest || userId !== activeUserId) return;
+
+    walletState = {
+      cash: Number(wallet.cash_balance),
+      holdings: { BTC: Number(wallet.btc_balance), ETH: Number(wallet.eth_balance), SOL: Number(wallet.sol_balance) },
+      transactions: transactions || []
+    };
+    loadedUserId = userId;
+    renderWallet();
+    walletMessage.textContent = "Shared demo wallet is up to date. Incoming transfers refresh automatically.";
+  } catch (error) {
+    if (requestNumber !== walletLoadRequest || userId !== activeUserId) return;
+    walletMessage.textContent = `Shared wallet setup needed: ${error.message || "database request failed"}`;
+    walletMessage.classList.add("error");
+  }
 }
 
 function renderAssets() {
@@ -188,31 +194,38 @@ function renderActivity() {
   if (!transactions.length) {
     const empty = document.createElement("p");
     empty.className = "empty-activity";
-    empty.textContent = "No activity yet. Try a simulated buy, sell, or send to create your first demo receipt.";
+    empty.textContent = "No activity yet. Try a simulated buy, sell, or send to create your first shared demo receipt.";
     activityList.append(empty);
     return;
   }
 
-  [...transactions].reverse().forEach((tx) => {
-    const asset = assets.find((item) => item.symbol === tx.symbol);
+  transactions.forEach((tx) => {
+    const asset = assets.find((item) => item.symbol === tx.asset_symbol);
+    if (!asset) return;
+    const incoming = tx.action === "send" && tx.recipient_user_id === activeUserId && tx.user_id !== activeUserId;
+    const displayAction = incoming ? "receive" : tx.action;
     const row = document.createElement("article");
     row.className = "activity-row";
     const icon = document.createElement("span");
-    icon.className = `activity-icon ${tx.type}`;
-    icon.textContent = tx.type === "buy" ? "＋" : tx.type === "sell" ? "↗" : "➤";
+    icon.className = `activity-icon ${displayAction}`;
+    icon.textContent = displayAction === "buy" ? "＋" : displayAction === "sell" ? "↗" : displayAction === "receive" ? "↓" : "➤";
     const details = document.createElement("div");
     details.className = "activity-description";
     const title = document.createElement("strong");
-    title.textContent = tx.type === "send" ? `Demo send · ${asset.name}` : `${tx.type === "buy" ? "Bought" : "Sold"} ${asset.name}`;
+    const actionText = { buy: "Bought", sell: "Sold", send: "Sent", receive: "Received" }[displayAction];
+    title.textContent = `${actionText} ${asset.name}${displayAction === "send" || displayAction === "receive" ? " · Demo transfer" : ""}`;
     const note = document.createElement("span");
-    const recipientText = tx.type === "send" ? ` · To ${tx.recipient}` : "";
-    note.textContent = `${dateFormat.format(new Date(tx.createdAt))} · ${tx.id}${recipientText} · Demo only`;
+    let counterparty = "";
+    if (displayAction === "send") counterparty = ` · To ${tx.recipient_email}`;
+    if (displayAction === "receive") counterparty = ` · From ${tx.sender_email}`;
+    note.textContent = `${dateFormat.format(new Date(tx.created_at))} · ${tx.reference}${counterparty} · Demo only`;
     details.append(title, note);
     const value = document.createElement("strong");
     value.className = "activity-amount";
-    value.textContent = `${tx.type === "sell" ? "+" : "−"}${usd.format(tx.usdValue)}`;
+    const positive = displayAction === "sell" || displayAction === "receive";
+    value.textContent = `${positive ? "+" : "−"}${usd.format(Number(tx.usd_value))}`;
     const quantity = document.createElement("small");
-    quantity.textContent = formatQuantity(tx.quantity, tx.symbol);
+    quantity.textContent = formatQuantity(tx.quantity, tx.asset_symbol);
     value.append(quantity);
     row.append(icon, details, value);
     activityList.append(row);
@@ -242,9 +255,9 @@ function populateAssetChoices() {
 function openAction(nextAction) {
   actionMode = nextAction;
   const config = {
-    buy: { title: "Buy crypto", description: "Use your demo cash to add a sample asset to this portfolio.", label: "Amount in USD", prefix: "$", button: "Confirm demo buy", hint: "The amount will be converted using the fixed sample price." },
+    buy: { title: "Buy crypto", description: "Use your demo cash to add a sample asset to this shared portfolio.", label: "Amount in USD", prefix: "$", button: "Confirm demo buy", hint: "The amount will be converted using the fixed sample price." },
     sell: { title: "Sell crypto", description: "Sell part of a sample holding and return demo cash to your wallet.", label: "Amount in USD", prefix: "$", button: "Confirm demo sell", hint: "You can sell up to the current sample value of your holding." },
-    send: { title: "Send crypto", description: "Record a simulated transfer to a demo recipient. No address or blockchain transfer is used.", label: "Quantity to send", prefix: "", button: "Record demo send", hint: "The sample asset balance will decrease; no crypto leaves this demo." }
+    send: { title: "Send crypto", description: "Send a demo asset to another registered CryptoVault account by email. No blockchain transfer is made.", label: "Quantity to send", prefix: "", button: "Send demo funds", hint: "The recipient must have created and confirmed a CryptoVault account first." }
   }[actionMode];
   dialogTitle.textContent = config.title;
   dialogDescription.textContent = config.description;
@@ -264,85 +277,66 @@ function openAction(nextAction) {
   transactionDialog.showModal();
 }
 
-function createReceiptId() {
-  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 12);
-  const suffix = Math.random().toString(36).slice(2, 7).toUpperCase();
-  return `CV-DEMO-${stamp}-${suffix}`;
-}
-
-function recordTransaction(event) {
+async function recordTransaction(event) {
   event.preventDefault();
   transactionError.textContent = "";
   const asset = assets.find((item) => item.symbol === transactionAsset.value);
-  const inputAmount = Number(transactionAmount.value);
-  const recipient = recipientInput.value.trim();
-  if (!asset || !Number.isFinite(inputAmount) || inputAmount <= 0) {
+  const amount = Number(transactionAmount.value);
+  const recipientEmail = recipientInput.value.trim().toLowerCase();
+  if (!asset || !Number.isFinite(amount) || amount <= 0) {
     transactionError.textContent = "Enter an amount greater than zero.";
     return;
   }
-
-  let quantity;
-  let usdValue;
-  if (actionMode === "send") {
-    quantity = inputAmount;
-    usdValue = quantity * asset.price;
-    if (!recipient) {
-      transactionError.textContent = "Add a demo recipient label.";
-      return;
-    }
-    if (quantity > walletState.holdings[asset.symbol]) {
-      transactionError.textContent = `You only have ${formatQuantity(walletState.holdings[asset.symbol], asset.symbol)} in this demo wallet.`;
-      return;
-    }
-    walletState.holdings[asset.symbol] -= quantity;
-  } else {
-    usdValue = Math.round(inputAmount * 100) / 100;
-    quantity = usdValue / asset.price;
-    if (actionMode === "buy") {
-      if (usdValue > walletState.cash) {
-        transactionError.textContent = `Your demo cash balance is ${usd.format(walletState.cash)}.`;
-        return;
-      }
-      walletState.cash = Math.round((walletState.cash - usdValue) * 100) / 100;
-      walletState.holdings[asset.symbol] += quantity;
-    } else {
-      const holdingValue = walletState.holdings[asset.symbol] * asset.price;
-      if (usdValue > holdingValue) {
-        transactionError.textContent = `You can sell up to ${usd.format(holdingValue)} at this sample price.`;
-        return;
-      }
-      walletState.holdings[asset.symbol] -= quantity;
-      walletState.cash = Math.round((walletState.cash + usdValue) * 100) / 100;
-    }
+  if (actionMode === "send" && !recipientEmail) {
+    transactionError.textContent = "Enter the email address used for their CryptoVault account.";
+    return;
+  }
+  if (!supabase || !activeUserId) {
+    transactionError.textContent = "Please log in again before making a demo transaction.";
+    return;
   }
 
-  walletState.holdings[asset.symbol] = Math.max(0, walletState.holdings[asset.symbol]);
-  walletState.transactions.push({
-    id: createReceiptId(),
-    type: actionMode,
-    symbol: asset.symbol,
-    quantity,
-    usdValue,
-    recipient: actionMode === "send" ? recipient : "",
-    createdAt: new Date().toISOString()
-  });
-  saveWallet();
-  renderWallet();
-  transactionDialog.close();
-  transactionForm.reset();
+  confirmTransaction.disabled = true;
+  confirmTransaction.textContent = "Saving…";
+  try {
+    const { data, error } = await supabase.rpc("execute_demo_transaction", {
+      p_action: actionMode,
+      p_asset_symbol: asset.symbol,
+      p_amount: amount,
+      p_recipient_email: actionMode === "send" ? recipientEmail : null
+    });
+    if (error) throw error;
+    transactionDialog.close();
+    transactionForm.reset();
+    await refreshWallet(activeUserId);
+    if (data?.reference) walletMessage.textContent = `Shared demo transaction saved · ${data.reference}`;
+  } catch (error) {
+    transactionError.textContent = error.message || "Could not save the demo transaction.";
+  } finally {
+    confirmTransaction.disabled = false;
+    confirmTransaction.textContent = actionMode === "send" ? "Send demo funds" : actionMode === "sell" ? "Confirm demo sell" : "Confirm demo buy";
+  }
 }
 
 function csvCell(value) {
-  let safeValue = String(value);
+  let safeValue = String(value ?? "");
   if (/^[=+@\-]/.test(safeValue)) safeValue = `'${safeValue}`;
   return `"${safeValue.replaceAll('"', '""')}"`;
 }
 
-function downloadActivity() {
-  const rows = [["Demo receipt", "Date", "Action", "Asset", "Quantity", "Sample USD value", "Demo recipient", "Status"]];
-  walletState.transactions.forEach((tx) => rows.push([
-    tx.id, tx.createdAt, tx.type, tx.symbol, tx.quantity, tx.usdValue, tx.recipient || "", "Simulated · not on blockchain"
-  ]));
+async function downloadActivity() {
+  if (!activeUserId) return;
+  await refreshWallet(activeUserId);
+  if (!walletState) return;
+  const rows = [["Demo receipt", "Date", "Action", "Asset", "Quantity", "Sample USD value", "From", "To", "Status"]];
+  walletState.transactions.forEach((tx) => {
+    const incoming = tx.action === "send" && tx.recipient_user_id === activeUserId && tx.user_id !== activeUserId;
+    rows.push([
+      tx.reference, tx.created_at, incoming ? "receive" : tx.action, tx.asset_symbol,
+      tx.quantity, tx.usd_value, incoming ? tx.sender_email : "", incoming ? "" : (tx.recipient_email || ""),
+      "Simulated · not on blockchain"
+    ]);
+  });
   const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const link = document.createElement("a");
@@ -359,13 +353,19 @@ document.getElementById("close-dialog").addEventListener("click", () => transact
 document.getElementById("cancel-transaction").addEventListener("click", () => transactionDialog.close());
 transactionDialog.addEventListener("close", () => transactionForm.reset());
 transactionForm.addEventListener("submit", recordTransaction);
-document.getElementById("export-activity").addEventListener("click", downloadActivity);
+document.getElementById("export-activity").addEventListener("click", () => void downloadActivity());
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && activeUserId) void refreshWallet(activeUserId);
+});
+window.addEventListener("focus", () => {
+  if (activeUserId) void refreshWallet(activeUserId);
+});
 
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (busy) return;
   if (!supabase) {
-    showMessage("Supabase setup is incomplete. Add your project URL and publishable key.", true);
+    showMessage("Supabase setup is incomplete. Check the project URL and publishable key.", true);
     return;
   }
   const email = emailInput.value.trim();
@@ -410,11 +410,11 @@ async function initialiseAuth() {
   if (!supabase) {
     showLogin();
     setBusy(false);
-    showMessage("Supabase setup is incomplete. Add your project URL and publishable key.", true);
+    showMessage("Supabase setup is incomplete. Check the project URL and publishable key.", true);
     return;
   }
   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-    if (session) showDashboard(session);
+    if (session) showDashboard(session, true);
     else showLogin();
   });
   try {
