@@ -18,3 +18,5 @@ jobs:
 
       - name: Upload site to S3
         run: aws s3 sync . s3://aisosa-portfolio-demo --exclude ".git/*" --exclude ".github/*" --exclude "README.md"
+      - name: Refresh CloudFront
+        run: aws cloudfront create-invalidation --distribution-id EPMH4H14AWBN8W --paths "/*"
